@@ -29,9 +29,23 @@ Let’s start off by defining the Subscription object. Each of the Subscription 
 
 For this operation, we’ll define the URI as /subscriptions/users/{userId}/products/{asin} and use the PUT verb. 
 - Why do you think we should use PUT here instead of a POST?
+  -    The resource will exist directly at that endpoint. If this
+       is the same endpoint you would GET from, it should probably be a PUT.
+       We would want to use `POST` if every time we called the endpoint a new
+       resource should be generated and we will want to `GET` with more
+       information added to the `POST` URI. For example if we were generating
+       an ID and the `GET` subscription would be
+       `/subscriptions/users/{userId}/products/{asin}/{subscriptionId}`
 - Are there any fields of the Subscription object that clients shouldn’t send as a part of the request?
+  - nextShipmentMonth
 - What fields should the request parameters include?
+  - userId, asin, quantity, monthlyFrequency. We don't want to use the
+       `Subscription` shape, because we are not allowing clients to set
+       every member value of `Subscription`. If someone specified a
+       `nextShipmentMonth` and then we just ignored it, that could be very
+       confusing.
 - What fields should our response object have?
+  - Subscription
 
 #### Extension
 - What other use cases might you need to support?
@@ -66,11 +80,21 @@ Review the following use case and its requirements:
 - If a customer doesn’t have any subscriptions, return a user not found exception.
 
 1. Choose a path for your new operation.
-1. What HTTP verb will you use?
-1. Write the description of what the operation will do
-1. Are any values required to fulfill this operation?
-1. What value/s should the service return in its response?
-1. List which exceptions should be returned from this operation and when.
+    - `subscriptions/users/{userId}`
+2. What HTTP verb will you use?
+    - GET 
+3. Write the description of what the operation will do
+4. Are any values required to fulfill this operation?
+    - userId
+5. What value/s should the service return in its response?
+    - a list of subscription shapes. We could do just a list of asins
+       and then if a client wanted more information they could go lookup those
+       subscriptions. But most likely a client is always going to want at least
+       the subscription frequency and quantity. We could return a summary object
+       that just has those three fields, but we will treat that as an extension
+       for another time.
+6. List which exceptions should be returned from this operation and when.
+    - UserNotFoundException if the user doesn't exist
 
 ### PART D - Creating the RapiDoc page
 
